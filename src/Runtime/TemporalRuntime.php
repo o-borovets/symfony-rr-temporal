@@ -14,7 +14,7 @@ class TemporalRuntime extends SymfonyRuntime
     public function getRunner(null|object $application): RunnerInterface
     {
         if ($application instanceof KernelInterface && Mode::MODE_TEMPORAL === getenv('RR_MODE')) {
-            return new TemporalRunner($application);
+            return new TemporalRuntimeRunner($application);
         }
 
         return parent::getRunner($application);

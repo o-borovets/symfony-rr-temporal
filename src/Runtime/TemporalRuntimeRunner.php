@@ -8,7 +8,7 @@ use RoadRunnerTemporalSymfony\TemporalWorkerInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Runtime\RunnerInterface;
 
-class TemporalRunner implements RunnerInterface
+class TemporalRuntimeRunner implements RunnerInterface
 {
     public function __construct(
         private readonly KernelInterface $kernel
