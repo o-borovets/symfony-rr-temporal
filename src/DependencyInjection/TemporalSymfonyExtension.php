@@ -10,6 +10,7 @@ use Symfony\Component\DependencyInjection\ChildDefinition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
+use Temporal\Activity\ActivityInterface;
 use Temporal\Workflow\WorkflowInterface;
 
 class TemporalSymfonyExtension extends Extension
@@ -32,7 +33,7 @@ class TemporalSymfonyExtension extends Extension
         );
 
         $container->registerAttributeForAutoconfiguration(
-            WorkflowInterface::class,
+            ActivityInterface::class,
             static function (ChildDefinition $definition) {
                 $definition->addTag('temporal_symfony.activity');
             }
