@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace RoadRunnerTemporalSymfony;
 
-interface TemporalWorkerInterface
+interface TemporalWorkerRunnerInterface
 {
     public function run(): int;
 }

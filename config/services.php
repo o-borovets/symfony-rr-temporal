@@ -2,11 +2,12 @@
 
 declare(strict_types=1);
 
-use RoadRunnerTemporalSymfony\TemporalWorker;
+use RoadRunnerTemporalSymfony\TemporalWorkerRunner;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
 use function Symfony\Component\DependencyInjection\Loader\Configurator\param;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
+use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_iterator;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_locator;
 
 use Temporal\Client\GRPC\ServiceClient;
@@ -26,12 +27,20 @@ return static function (ContainerConfigurator $container) {
     ;
 
     $services
-        ->set(\RoadRunnerTemporalSymfony\TemporalWorkerInterface::class, \RoadRunnerTemporalSymfony\TemporalWorker::class)
+        ->set(\RoadRunnerTemporalSymfony\TemporalWorkerRunnerInterface::class, \RoadRunnerTemporalSymfony\TemporalWorkerRunner::class)
         ->public()
         ->args([
-            service('kernel'),
-            tagged_locator('temporal_symfony.workflow'),
+            service(WorkerFactoryInterface::class),
             tagged_locator('temporal_symfony.activity'),
+            tagged_locator('temporal_symfony.workflow'),
+            service(\RoadRunnerTemporalSymfony\ActivityFinalizer\FinalizerInterface::class)
+        ])
+    ;
+
+    $services
+        ->set(\RoadRunnerTemporalSymfony\ActivityFinalizer\FinalizerInterface::class, \RoadRunnerTemporalSymfony\ActivityFinalizer\DelegateFinalizer::class)
+        ->args([
+            tagged_iterator('temporal_symfony.finalizer'),
         ])
     ;
 

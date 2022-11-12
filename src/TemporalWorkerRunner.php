@@ -4,26 +4,23 @@ declare(strict_types=1);
 
 namespace RoadRunnerTemporalSymfony;
 
-use Psr\Container\ContainerInterface;
+use RoadRunnerTemporalSymfony\ActivityFinalizer\FinalizerInterface;
 use Symfony\Component\DependencyInjection\ServiceLocator;
-use Symfony\Component\HttpKernel\KernelInterface;
 use Temporal\Worker\WorkerFactoryInterface;
 
-class TemporalWorker implements TemporalWorkerInterface
+class TemporalWorkerRunner implements TemporalWorkerRunnerInterface
 {
     public function __construct(
-        private readonly KernelInterface $kernel,
+        private readonly WorkerFactoryInterface $workerFactory,
         private readonly ServiceLocator $activities,
         private readonly ServiceLocator $workflows,
+        private readonly FinalizerInterface $finalizer,
     ) {
     }
 
     public function run(): int
     {
-        /** @var WorkerFactoryInterface $workerFactory */
-        $workerFactory = $this->kernel->getContainer()->get(WorkerFactoryInterface::class);
-
-        $worker = $workerFactory->newWorker();
+        $worker = $this->workerFactory->newWorker();
 
         $worker->registerWorkflowTypes(...array_values($this->workflows->getProvidedServices()));
 
@@ -32,14 +29,9 @@ class TemporalWorker implements TemporalWorkerInterface
         }
 
         $worker->registerActivityFinalizer(function () {
-            /** @var ContainerInterface $container */
-            $container = $this->kernel->getContainer();
-
-            if ($container->has('services_resetter')) {
-                $container->get('services_resetter')->reset();
-            }
+            $this->finalizer->finalize();
         });
 
-        return $workerFactory->run();
+        return $this->workerFactory->run();
     }
 }

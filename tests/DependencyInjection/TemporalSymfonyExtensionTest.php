@@ -5,16 +5,24 @@ declare(strict_types=1);
 namespace RoadRunnerTemporalSymfony\Tests\DependencyInjection;
 
 use PHPUnit\Framework\TestCase;
+use RoadRunnerTemporalSymfony\ActivityFinalizer\FinalizerInterface;
 use RoadRunnerTemporalSymfony\DependencyInjection\TemporalSymfonyExtension;
+use RoadRunnerTemporalSymfony\TemporalWorkerRunnerInterface;
 use RoadRunnerTemporalSymfony\Tests\DependencyInjection\Stub\TestActivity;
 use RoadRunnerTemporalSymfony\Tests\DependencyInjection\Stub\TestFinalizer;
 use RoadRunnerTemporalSymfony\Tests\DependencyInjection\Stub\TestWorkflow;
+use Symfony\Component\DependencyInjection\Argument\ServiceLocatorArgument;
+use Symfony\Component\DependencyInjection\Argument\TaggedIteratorArgument;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Reference;
+use Temporal\Worker\WorkerFactoryInterface;
 
 /**
  * @internal
  *
  * @covers \RoadRunnerTemporalSymfony\DependencyInjection\TemporalSymfonyExtension
+ *
+ * @noinspection PhpUnnecessaryStaticReferenceInspection
  */
 final class TemporalSymfonyExtensionTest extends TestCase
 {
@@ -37,6 +45,32 @@ final class TemporalSymfonyExtensionTest extends TestCase
         $this->containerBuilder = null;
     }
 
+    public function testRunnerConfiguration()
+    {
+        $this->registerService(TestActivity::class);
+        $this->registerService(TestWorkflow::class);
+
+        $this->loadAndCompile();
+
+        $d = $this->containerBuilder->getDefinition(TemporalWorkerRunnerInterface::class);
+
+        $factoryDef = $d->getArgument(0);
+        static::assertInstanceOf(Reference::class, $factoryDef);
+        static::assertSame(WorkerFactoryInterface::class, (string)$factoryDef);
+
+        $activityLocatorDef = $d->getArgument(1);
+        static::assertInstanceOf(ServiceLocatorArgument::class, $activityLocatorDef);
+        static::assertSame('temporal_symfony.activity', $activityLocatorDef->getTaggedIteratorArgument()->getTag());
+
+        $activityLocatorDef = $d->getArgument(2);
+        static::assertInstanceOf(ServiceLocatorArgument::class, $activityLocatorDef);
+        static::assertSame('temporal_symfony.workflow', $activityLocatorDef->getTaggedIteratorArgument()->getTag());
+
+        $factoryDef = $d->getArgument(3);
+        static::assertInstanceOf(Reference::class, $factoryDef);
+        static::assertSame(FinalizerInterface::class, (string)$factoryDef);
+    }
+
     public function testActivityRegisteredAutoconfiguration()
     {
         $this->registerService(TestActivity::class);
@@ -44,9 +78,7 @@ final class TemporalSymfonyExtensionTest extends TestCase
         $this->loadAndCompile();
 
         $d = $this->containerBuilder->getDefinition(TestActivity::class);
-
-        $tg = $d->getTag('temporal_symfony.activity');
-        static::assertNotEmpty($tg);
+        static::assertTrue($d->hasTag('temporal_symfony.activity'));
     }
 
     public function testWorkflowRegisteredAutoconfiguration()
@@ -56,7 +88,6 @@ final class TemporalSymfonyExtensionTest extends TestCase
         $this->loadAndCompile();
 
         $definition = $this->containerBuilder->getDefinition(TestWorkflow::class);
-
         static::assertTrue($definition->hasTag('temporal_symfony.workflow'));
     }
 

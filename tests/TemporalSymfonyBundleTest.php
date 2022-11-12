@@ -1,9 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace RoadRunnerTemporalSymfony\Tests;
 
-use RoadRunnerTemporalSymfony\TemporalSymfonyBundle;
 use PHPUnit\Framework\TestCase;
+use RoadRunnerTemporalSymfony\TemporalSymfonyBundle;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\Loader\LoaderInterface;
@@ -13,19 +15,23 @@ use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\HttpKernel\KernelInterface;
 
-class TemporalSymfonyBundleTest extends TestCase
+/**
+ * @internal
+ *
+ * @covers *
+ */
+final class TemporalSymfonyBundleTest extends TestCase
 {
-    public function test_bundle_expose_the_activity_worker()
+    public function testBundleExposeTheActivityWorker()
     {
         $k = $this->getKernel();
         $k->boot();
         $c = $k->getContainer()->get('test.service_container');
 
-        $cmd = $c->get(\RoadRunnerTemporalSymfony\TemporalWorkerInterface::class);
+        $cmd = $c->get(\RoadRunnerTemporalSymfony\TemporalWorkerRunnerInterface::class);
 
-        $this->assertInstanceOf(\RoadRunnerTemporalSymfony\TemporalWorkerInterface::class, $cmd);
+        static::assertInstanceOf(\RoadRunnerTemporalSymfony\TemporalWorkerRunnerInterface::class, $cmd);
     }
-
 
     /**
      * @param BundleInterface[] $extraBundles

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace RoadRunnerTemporalSymfony\Runtime;
 
-use RoadRunnerTemporalSymfony\TemporalWorkerInterface;
+use RoadRunnerTemporalSymfony\TemporalWorkerRunnerInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Runtime\RunnerInterface;
 
@@ -19,8 +19,8 @@ class TemporalRuntimeRunner implements RunnerInterface
     {
         $this->kernel->boot();
 
-        /** @var TemporalWorkerInterface $workerRunner */
-        $workerRunner = $this->kernel->getContainer()->get(TemporalWorkerInterface::class);
+        /** @var TemporalWorkerRunnerInterface $workerRunner */
+        $workerRunner = $this->kernel->getContainer()->get(TemporalWorkerRunnerInterface::class);
 
         return $workerRunner->run();
     }
