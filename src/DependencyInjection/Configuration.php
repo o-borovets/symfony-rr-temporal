@@ -10,7 +10,7 @@ use Temporal\Worker\WorkerFactoryInterface;
 
 class Configuration implements ConfigurationInterface
 {
-    public function getConfigTreeBuilder()
+    public function getConfigTreeBuilder(): TreeBuilder
     {
         $treeBuilder = new TreeBuilder('temporal_symfony');
         $rootNode = $treeBuilder->getRootNode();
