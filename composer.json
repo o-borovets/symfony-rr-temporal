@@ -14,7 +14,7 @@
     "symfony/http-kernel": "^5.4 || ^6.0 || ^7.0 || ^8.0",
     "symfony/runtime": "^5.4 || ^6.0 || ^7.0 || ^8.0",
     "spiral/roadrunner-worker": "^3.6",
-    "temporal/sdk": "dev-main",
+    "temporal/sdk": "dev-master",
     "symfony/dependency-injection": "^6.1 || ^7.0 || ^8.0",
     "symfony/config": "^5.4 || ^6.0 || ^7.0 || ^8.0"
   },
